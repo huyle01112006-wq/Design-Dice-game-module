@@ -59,7 +59,7 @@ end
 reg [2:0] current_state , next_state ;
 localparam [2:0] S_IDLE = 3'b000 , S_FIRST = 3'b001, S_NEXT_ROLL = 3'b010, 
 S_WIN = 3'b011 , S_LOSE = 3'b100;
-
+wire [3:0] sum_i = dice_1 + dice_2 ;
 always@(posedge clk or posedge rst)begin
 if(rst) begin 
 current_state <= S_IDLE ;
@@ -75,16 +75,16 @@ SUM_0 <= 4'd0 ;
 end
 S_FIRST: begin 
 if(rtn_fall_edge) begin 
-SUM_0 = dice_1 + dice_2 ;
-if(!(SUM_0 == 4 || SUM_0 == 6 || SUM_0 == 7 || SUM_0 == 8 || SUM_0 == 15))
-begin POINT <= SUM_0 ;
+SUM_0<= sum_i ;
+if(!(sum_i == 4 || sum_i == 6 || sum_i == 7 || sum_i == 8 || sum_i == 15))
+begin POINT <= sum_i ;
 $display("Value of register POINT: %d", POINT);
 end
 end
 end
 S_NEXT_ROLL: begin 
 if(rtn_fall_edge) begin
-SUM_0 <= dice_1 + dice_2  ;
+SUM_0 <= sum_i  ;
 
 end
 end
@@ -97,8 +97,8 @@ $display("LOSE") ;
 $finish ;
 end
 endcase
-end
-end
+end end
+
 always@(*) begin 
 next_state = current_state ; 
 case(current_state)

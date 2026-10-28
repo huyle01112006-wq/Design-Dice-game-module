@@ -3,7 +3,7 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 28.10.2026 10:37:44
+// Create Date: 10/28/2026 12:14:01 PM
 // Design Name: 
 // Module Name: dice_game
 // Project Name: 
@@ -21,112 +21,106 @@
 
 
 module dice_game(
-input clk,
-input  rst,
-input RTN, // roll button
-output reg [3:0] SUM_0,
-output reg [3:0] point_out
-);
-reg [3:0] dice_1  ; 
-reg [3:0]dice_2 ;
-reg [3:0] POINT = 4'b0; 
-reg [1:0] game_status ;
-
-reg rtn1, rtn2 ;
-wire rtn_fall_edge ;
-always@(posedge clk or posedge rst) begin 
+input wire clk ,
+input wire rst ,
+input wire RTN ,
+output reg [3:0] sum_0,
+output reg [3:0] point
+    );
+reg rtn1 , rtn2 ;
+reg [3:0] dice_1 , dice_2 ;
+wire [3:0] sum_d ;
+wire rtn_fall_e; 
+reg [3:0] point_out;
+reg [2:0] current_state, next_state ; 
+localparam [2:0] S_IDLE = 3'b000 , S_FIRST = 3'b001,S_NEXT_ROLL = 3'b010, S_WIN = 3'b011 , S_LOSE = 3'b100 ;
+always@(posedge clk  or posedge rst) begin 
 if(rst) begin 
-rtn1 <= 0 ; 
-rtn2 <= 0 ;
+rtn1 <= 0; 
+rtn2 <= 0 ; 
 end
 else begin 
 rtn1 <= RTN; 
-rtn2 <= rtn1 ;
+rtn2 <= rtn1;
 end
-end
-assign rtn_fall_edge = rtn2 & (~rtn1) ;
-always@(posedge clk or posedge rst) begin
+end    
+assign rtn_fall_e = rtn2 & (~rtn1) ;
+
+always@(posedge clk or posedge rst) begin 
 if(rst) begin 
-dice_1 <= 0; 
-dice_2 <= 0 ;
-end else begin
-if(dice_1 >=6) dice_1 = 4'b0001 ;
-else dice_1 = dice_1 + 1;
-if(dice_2 >= 6) dice_2 = 4'b0001 ;
-else dice_2 = dice_2 + 1;
-end
-end
-reg [2:0] current_state , next_state ;
-localparam [2:0] S_IDLE = 3'b000 , S_FIRST = 3'b001, S_NEXT_ROLL = 3'b010, 
-S_WIN = 3'b011 , S_LOSE = 3'b100;
-wire [3:0] sum_i = dice_1 + dice_2 ;
-always@(posedge clk or posedge rst)begin
-if(rst) begin 
-current_state <= S_IDLE ;
-POINT <= 4'd0 ; 
-SUM_0 <= 4'd0 ;
+dice_1 <= 4'd1 ; dice_2 <= 4'd1 ;
 end
 else begin 
+if(dice_1 >= 6) dice_1 <= 4'd1 ;
+else dice_1 <= dice_1 + 1 ;
+if(dice_2 >= 6 ) dice_2 <= 4'd1 ;
+else dice_2 <= dice_2 + 1; 
+end
+end
+assign sum_d = dice_1 + dice_2 ;
+always@(posedge clk or posedge rst) begin 
+if(rst) begin 
+current_state <= S_IDLE; 
+point_out <= 4'd0;
+sum_0 <= 4'd0 ;
+end else begin 
 current_state <= next_state;
-case(next_state)
+case(next_state) 
 S_IDLE: begin 
-POINT <= 4'd0 ; 
-SUM_0 <= 4'd0 ; 
+sum_0 <= 4'd0 ; 
+point_out <= 4'd0 ;
 end
-S_FIRST: begin 
-if(rtn_fall_edge) begin 
-SUM_0<= sum_i ;
-if(!(sum_i == 4 || sum_i == 6 || sum_i == 7 || sum_i == 8 || sum_i == 15))
-begin POINT <= sum_i ;
-$display("Value of register POINT: %d", POINT);
-end
+S_FIRST: begin
+if(rtn_fall_e) begin  sum_0 <= sum_d ; 
+if(!(sum_d == 4 || sum_d == 6 || sum_d ==7 || sum_d ==8 || sum_d == 15)) begin 
+point_out  <= sum_d ;
+$display("VALUE OF POINT REG=%d" , point);
 end
 end
-S_NEXT_ROLL: begin 
-if(rtn_fall_edge) begin
-SUM_0 <= sum_i  ;
-
 end
+S_NEXT_ROLL: begin
+if(rtn_fall_e) begin sum_0 <= sum_d ; end
 end
 S_WIN: begin 
-$display("WIN") ;
+$display("WIN");
 $finish ;
 end
 S_LOSE: begin 
-$display("LOSE") ; 
-$finish ;
+$display("LOSE");
+$finish;
 end
 endcase
-end end
-
+end
+end
 always@(*) begin 
-next_state = current_state ; 
+next_state <= current_state; 
 case(current_state)
 S_IDLE: begin 
-if(rtn_fall_edge) next_state <= S_FIRST;
+if(rtn_fall_e) next_state <= S_FIRST;
 end
 S_FIRST: begin 
-if(rtn_fall_edge)begin 
-if( SUM_0 == 6 || SUM_0 == 8) next_state <= S_WIN ; 
-else if( SUM_0 == 4 || SUM_0 == 7 || SUM_0 == 15) next_state <= S_LOSE ; 
-else next_state <= S_NEXT_ROLL;
+if(rtn_fall_e) begin
+if(sum_d == 6 || sum_d == 8) begin 
+next_state <= S_WIN ;
+end else if(sum_d == 4 || sum_d ==7 || sum_d == 15) begin 
+next_state <= S_LOSE;
+end else  begin next_state <= S_NEXT_ROLL; 
+end
 end
 end
 S_NEXT_ROLL: begin 
-if(rtn_fall_edge) begin 
-if( SUM_0 == POINT) next_state <= S_WIN ; 
-else if( SUM_0 == 9) next_state <= S_LOSE ; 
-else next_state <= S_NEXT_ROLL;
+if(rtn_fall_e) begin
+if(sum_d == point_out ) next_state <= S_WIN;
+else if(sum_d == 9) next_state <= S_LOSE;
+else next_state <= S_NEXT_ROLL ;
 end
+end 
+S_WIN, S_LOSE: begin 
+next_state=(rst)? S_IDLE : current_state ;
 end
-S_WIN, S_LOSE : begin
-next_state = (rst)? S_IDLE: current_state;
-end
-default: next_state <= S_IDLE; 
 endcase
 end
-
 always@(*) begin 
-point_out <= POINT; 
+point <= point_out ;
 end
 endmodule

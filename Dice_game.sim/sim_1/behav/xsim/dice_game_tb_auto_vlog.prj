@@ -1,0 +1,10 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  \
+"../../../../Dice_game.srcs/sources_1/new/dice_game.v" \
+"../../../../Dice_game.srcs/sim_1/new/dice_game_tb.v" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

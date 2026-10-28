@@ -1,0 +1,4 @@
+INFO: [VRFC 10-2263] Analyzing Verilog file "D:/vivado/Dice_game/Dice_game.srcs/sources_1/new/dice_game.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dice_game
+INFO: [VRFC 10-2263] Analyzing Verilog file "D:/vivado/Dice_game/Dice_game.srcs/sim_1/new/dice_game_tb.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dice_game_tb_auto

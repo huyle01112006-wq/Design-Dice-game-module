@@ -1,4 +1,24 @@
 `timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 28.10.2026 10:37:44
+// Design Name: 
+// Module Name: dice_game
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
 
 module dice_game_tb_auto;
     reg clk;
@@ -12,18 +32,20 @@ module dice_game_tb_auto;
         .RTN(RTN), 
         .SUM_0(SUM_0), 
         .point_out(point_out)
-    );
+);
     always #5 clk = ~clk;
     task roll_dice;
         begin
-            #5;
-            RTN = 0; 
-            #10;   
-            RTN = 1;
-            #20;   
+            #20;     
+            RTN = 0;
+            #40;    
+            RTN = 1; 
+            #100;   
         end
     endtask
+
     initial begin
+        
         clk = 0;
         rst = 1;
         RTN = 1;
@@ -31,7 +53,7 @@ module dice_game_tb_auto;
         rst = 0; 
         #20;
     end
-    always #20 roll_dice();
+always #170 roll_dice() ;
     initial begin
         $monitor("Time = %0t ns | State = %0d | SUM_0 = %0d | Point = %0d", 
                  $time, uut.current_state, SUM_0, point_out);
